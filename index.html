@@ -40,7 +40,7 @@
 
     <form id="hrForm" 
           action="https://docs.google.com/forms/d/e/1FAIpQLSdKsvBI4kIMlOH28sB5DlPmYXvOG1Eh5401EAalKH8kNhSbHg/formResponse" 
-          method="POST" target="_blank">
+          method="POST">
 
       <!-- SECTION 1 -->
       <div id="section1" class="active-section">
@@ -104,6 +104,10 @@
         </div>
       </div>
     </form>
+
+    <div id="submitMessage" class="hidden-section text-center mt-6 text-green-600 text-lg font-semibold">
+      Thank you! Your request has been submitted.
+    </div>
   </div>
 
   <script>
@@ -183,6 +187,29 @@
       const progress = document.getElementById('progressBar');
       progress.style.width = (n * 33) + '%';
     }
+
+    // AJAX submit handler for Google Forms
+    document.getElementById('hrForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent default form submission
+
+      const form = e.target;
+      const data = new FormData(form);
+
+      // Hide the form and show loading message (optional)
+      form.style.display = 'none';
+
+      // Try to submit via AJAX
+      fetch(form.action, {
+        method: 'POST',
+        body: data,
+        mode: 'no-cors' // Google Forms does not support CORS, but this sends the request.
+      }).then(() => {
+        document.getElementById('submitMessage').classList.remove('hidden-section');
+      }).catch(() => {
+        // If AJAX fails, fallback to normal submission
+        form.submit();
+      });
+    });
   </script>
 </body>
 </html>
