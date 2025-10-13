@@ -4,8 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HR Document Request</title>
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    .hidden-section { display: none; }
+    .active-section { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .error-message {
+      color: #dc2626; /* Tailwind red-600 */
+      font-size: 0.95em;
+      margin-bottom: 0.5em;
+      display: block;
+    }
+    .border-red-500 {
+      border-color: #ef4444 !important;
+    }
     .feedback-message {
       margin-top: 1em;
       font-size: 1.1em;
@@ -20,68 +38,184 @@
     .feedback-loading {
       color: #2563eb; /* Tailwind blue-600 */
     }
+    .progress {
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      transition: width 0.3s;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex justify-center items-center py-10 px-4">
   <div class="bg-white shadow-xl rounded-2xl w-full max-w-2xl p-6 md:p-10">
     <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">HR Document Request</h1>
     <p class="text-center text-gray-500 mb-6">Please fill out the details below.</p>
+    <div class="progress mb-6">
+      <div id="progressBar" class="progress-bar bg-indigo-500" style="width: 33%;"></div>
+    </div>
+
     <form id="hrForm">
-      <label class="block mb-2 font-medium text-gray-700">Email *</label>
-      <input type="email" name="email" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your email">
+      <!-- SECTION 1 -->
+      <div id="section1" class="active-section">
+        <label class="block mb-2 font-medium text-gray-700">Email *</label>
+        <input type="email" name="email" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your email">
+        <span class="error-message" id="error-email"></span>
 
-      <label class="block mb-2 font-medium text-gray-700">Full Name (Last, First, Middle) *</label>
-      <input type="text" name="fullname" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your full name">
+        <label class="block mb-2 font-medium text-gray-700">Full Name (Last Name, First Name, Middle Name) *</label>
+        <input type="text" name="fullname" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your full name">
+        <span class="error-message" id="error-fullname"></span>
 
-      <label class="block mb-3 font-medium text-gray-700">Type of document requested *</label>
-      <select name="documentType" required class="form-select mb-4 border-gray-300 rounded-lg">
-        <option value="">Select Document</option>
-        <option value="Certificate of Employment">Certificate of Employment</option>
-        <option value="Good Moral Certificate">Good Moral Certificate</option>
-        <option value="Income Tax Return">Income Tax Return</option>
-        <option value="BIR 2307">BIR 2307</option>
-      </select>
+        <label class="block mb-3 font-medium text-gray-700">Type of document you are requesting: *</label>
+        <div class="space-y-2 mb-4">
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Certificate of Employment" required> Certificate of Employment</label>
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Good Moral Certificate"> Good Moral Certificate</label>
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Income Tax Return"> Income Tax Return</label>
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="BIR 2307"> BIR 2307</label>
+        </div>
+        <span class="error-message" id="error-document"></span>
 
-      <label class="block mb-3 font-medium text-gray-700">For what use *</label>
-      <select name="useType" required class="form-select mb-4 border-gray-300 rounded-lg">
-        <option value="">Select Purpose</option>
-        <option value="Employment">Employment</option>
-        <option value="VISA">VISA</option>
-        <option value="Credit Card Application">Credit Card Application</option>
-        <option value="Housing Loan Application">Housing Loan Application</option>
-      </select>
+        <div class="text-end mt-6">
+          <button type="button" onclick="nextSection(2)" class="btn btn-primary px-4 py-2">Next</button>
+        </div>
+      </div>
 
-      <label class="block mb-2 font-medium text-gray-700">Additional Notes</label>
-      <input type="text" name="notes" class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Optional">
+      <!-- SECTION 2 -->
+      <div id="section2" class="hidden-section">
+        <label class="block mb-3 font-medium text-gray-700">For what use: *</label>
+        <div class="space-y-2 mb-4">
+          <label class="flex items-center gap-2"><input type="radio" name="useType" value="Employment" required> Employment</label>
+          <label class="flex items-center gap-2"><input type="radio" name="useType" value="VISA"> VISA</label>
+          <label class="flex items-center gap-2"><input type="radio" name="useType" value="Credit Card Application"> Credit Card Application</label>
+          <label class="flex items-center gap-2"><input type="radio" name="useType" value="Housing Loan Application"> Housing Loan Application</label>
+        </div>
+        <span class="error-message" id="error-use"></span>
 
-      <label class="block mb-2 font-medium text-gray-700">How do you feel about this? ⭐</label>
-      <select name="rating" class="form-select mb-6 border-gray-300 rounded-lg">
-        <option value="">Select Rating</option>
-        <option value="1">⭐</option>
-        <option value="2">⭐⭐</option>
-        <option value="3">⭐⭐⭐</option>
-        <option value="4">⭐⭐⭐⭐</option>
-        <option value="5">⭐⭐⭐⭐⭐</option>
-      </select>
+        <div class="flex justify-between mt-6">
+          <button type="button" onclick="nextSection(1)" class="btn btn-secondary px-4 py-2">Back</button>
+          <button type="button" onclick="nextSection(3)" class="btn btn-primary px-4 py-2">Next</button>
+        </div>
+      </div>
 
-      <button type="submit" class="btn btn-success px-4 py-2 w-full">Submit</button>
+      <!-- SECTION 3 -->
+      <div id="section3" class="hidden-section">
+        <label class="block mb-2 font-medium text-gray-700">Additional Notes</label>
+        <input type="text" name="notes" class="form-control mb-4 border-gray-300 rounded-lg">
+
+        <label class="block mb-2 font-medium text-gray-700">How do you feel about this? ⭐</label>
+        <select name="rating" class="form-select mb-6 border-gray-300 rounded-lg">
+          <option value="">Select Rating</option>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+
+        <div class="flex justify-between">
+          <button type="button" onclick="nextSection(2)" class="btn btn-secondary px-4 py-2">Back</button>
+          <button type="submit" class="btn btn-success px-4 py-2">Submit</button>
+        </div>
+      </div>
     </form>
+
     <div id="feedback" class="feedback-message"></div>
   </div>
 
   <script>
+    const sections = [1, 2, 3];
+
+    // Helper for showing error messages
+    function showError(fieldId, message) {
+      const errorSpan = document.getElementById(fieldId);
+      if (errorSpan) errorSpan.textContent = message;
+    }
+    function clearError(fieldId) {
+      const errorSpan = document.getElementById(fieldId);
+      if (errorSpan) errorSpan.textContent = '';
+    }
+
+    function nextSection(n) {
+      // Validate required fields in the current (visible) section
+      const currentSection = document.querySelector('.active-section');
+      let valid = true;
+
+      // Clear all previous error messages
+      ['error-email', 'error-fullname', 'error-document', 'error-use'].forEach(clearError);
+
+      // Section 1 validation
+      if (currentSection.id === 'section1') {
+        const email = currentSection.querySelector('input[name="email"]');
+        const fullname = currentSection.querySelector('input[name="fullname"]');
+        const documentType = currentSection.querySelector('input[name="documentType"]:checked');
+
+        // Email
+        if (!email.value) {
+          showError('error-email', 'Email is required.');
+          email.classList.add('border-red-500');
+          valid = false;
+        } else if (!email.checkValidity()) {
+          showError('error-email', 'Please enter a valid email address.');
+          email.classList.add('border-red-500');
+          valid = false;
+        } else {
+          email.classList.remove('border-red-500');
+        }
+        // Full Name
+        if (!fullname.value) {
+          showError('error-fullname', 'Full Name is required.');
+          fullname.classList.add('border-red-500');
+          valid = false;
+        } else {
+          fullname.classList.remove('border-red-500');
+        }
+        // Document Type
+        if (!documentType) {
+          showError('error-document', 'Please select a document type.');
+          valid = false;
+        }
+      }
+
+      // Section 2 validation
+      if (currentSection.id === 'section2') {
+        const useType = currentSection.querySelector('input[name="useType"]:checked');
+        if (!useType) {
+          showError('error-use', 'Please select the purpose for the document.');
+          valid = false;
+        }
+      }
+
+      if (!valid) return; // Do not proceed if invalid
+
+      // Hide all sections and show the requested one
+      sections.forEach(i => {
+        document.getElementById('section' + i).classList.add('hidden-section');
+        document.getElementById('section' + i).classList.remove('active-section');
+      });
+      document.getElementById('section' + n).classList.remove('hidden-section');
+      document.getElementById('section' + n).classList.add('active-section');
+
+      // Update progress bar
+      const progress = document.getElementById('progressBar');
+      progress.style.width = (n * 33) + '%';
+    }
+
+    // AJAX submit handler for Google Apps Script Web App
     document.getElementById('hrForm').addEventListener('submit', function(e) {
       e.preventDefault();
       var form = e.target;
       var data = new FormData(form);
       var feedback = document.getElementById('feedback');
 
-      // Replace with your Google Apps Script Web App URL:
-      var url = "https://script.google.com/macros/s/AKfycbxSKmrrph3ZL91nJogQ95Vt5fSNBSlIpmRjKXgFYcZERGm88XK13laDVazO1GydOCaf/exec";
-
       // Show loading message
       feedback.textContent = "Submitting your request... Please wait.";
       feedback.className = "feedback-message feedback-loading";
+
+      // Replace with your Google Apps Script Web App URL:
+      var url = "https://script.google.com/macros/s/AKfycbxSKmrrph3ZL91nJogQ95Vt5fSNBSlIpmRjKXgFYcZERGm88XK13laDVazO1GydOCaf/exec";
 
       fetch(url, {
         method: 'POST',
@@ -93,6 +227,14 @@
           feedback.textContent = "Thank you! Your request has been submitted.";
           feedback.className = "feedback-message feedback-success";
           form.reset();
+          // Optionally, reset to section 1
+          sections.forEach(i => {
+            document.getElementById('section' + i).classList.add('hidden-section');
+            document.getElementById('section' + i).classList.remove('active-section');
+          });
+          document.getElementById('section1').classList.remove('hidden-section');
+          document.getElementById('section1').classList.add('active-section');
+          document.getElementById('progressBar').style.width = '33%';
         } else {
           feedback.textContent = "Submission finished, but no confirmation from server. Please check with HR if you do not receive a response.";
           feedback.className = "feedback-message feedback-error";
