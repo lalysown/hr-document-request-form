@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HR Document Request</title>
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Tailwind -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .hidden-section { display: none; }
@@ -29,25 +27,11 @@
       font-size: 1.1em;
       font-weight: 500;
     }
-    .feedback-success {
-      color: #16a34a;
-    }
-    .feedback-error {
-      color: #dc2626;
-    }
-    .feedback-loading {
-      color: #2563eb;
-    }
-    .progress {
-      height: 8px;
-      background-color: #e5e7eb;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%;
-      transition: width 0.3s;
-    }
+    .feedback-success { color: #16a34a; }
+    .feedback-error { color: #dc2626; }
+    .feedback-loading { color: #2563eb; }
+    .progress { height: 8px; background-color: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .progress-bar { height: 100%; transition: width 0.3s; }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex justify-center items-center py-10 px-4">
@@ -64,11 +48,9 @@
         <label class="block mb-2 font-medium text-gray-700">Email *</label>
         <input type="email" name="email" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your email">
         <span class="error-message" id="error-email"></span>
-
         <label class="block mb-2 font-medium text-gray-700">Full Name (Last Name, First Name, Middle Name) *</label>
         <input type="text" name="fullname" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your full name">
         <span class="error-message" id="error-fullname"></span>
-
         <label class="block mb-3 font-medium text-gray-700">Type of document you are requesting: *</label>
         <div class="space-y-2 mb-4" id="documentTypeGroup">
           <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Certificate of Employment" required> Certificate of Employment</label>
@@ -77,7 +59,6 @@
           <label class="flex items-center gap-2"><input type="radio" name="documentType" value="BIR 2307"> BIR 2307</label>
         </div>
         <span class="error-message" id="error-document"></span>
-
         <div class="text-end mt-6">
           <button type="button" id="nextBtn1" class="btn btn-primary px-4 py-2">Next</button>
         </div>
@@ -93,10 +74,9 @@
           <label class="flex items-center gap-2"><input type="radio" name="useType" value="Housing Loan Application"> Housing Loan Application</label>
         </div>
         <span class="error-message" id="error-use"></span>
-
         <div class="flex justify-between mt-6">
-          <button type="button" onclick="nextSection(1)" class="btn btn-secondary px-4 py-2">Back</button>
-          <button type="button" onclick="nextSection(3)" class="btn btn-primary px-4 py-2">Next</button>
+          <button type="button" id="backBtn2" class="btn btn-secondary px-4 py-2">Back</button>
+          <button type="button" id="nextBtn2" class="btn btn-primary px-4 py-2">Next</button>
         </div>
       </div>
 
@@ -104,7 +84,6 @@
       <div id="section3" class="hidden-section">
         <label class="block mb-2 font-medium text-gray-700">Additional Notes</label>
         <input type="text" name="notes" class="form-control mb-4 border-gray-300 rounded-lg">
-
         <label class="block mb-2 font-medium text-gray-700">How do you feel about this? ⭐</label>
         <select name="rating" class="form-select mb-6 border-gray-300 rounded-lg">
           <option value="">Select Rating</option>
@@ -114,9 +93,8 @@
           <option value="4">⭐⭐⭐⭐</option>
           <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
-
         <div class="flex justify-between">
-          <button type="button" onclick="backToPrevious()" class="btn btn-secondary px-4 py-2">Back</button>
+          <button type="button" id="backBtn3" class="btn btn-secondary px-4 py-2">Back</button>
           <button type="submit" class="btn btn-success px-4 py-2">Submit</button>
         </div>
       </div>
@@ -126,9 +104,20 @@
   </div>
 
   <script>
-    const sections = [1, 2, 3];
     let lastSection = 1;
 
+    // Section navigation
+    function showSection(n) {
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById('section' + i).classList.add('hidden-section');
+        document.getElementById('section' + i).classList.remove('active-section');
+      }
+      document.getElementById('section' + n).classList.remove('hidden-section');
+      document.getElementById('section' + n).classList.add('active-section');
+      document.getElementById('progressBar').style.width = (n * 33) + "%";
+    }
+
+    // Validation helpers
     function showError(fieldId, message) {
       const errorSpan = document.getElementById(fieldId);
       if (errorSpan) errorSpan.textContent = message;
@@ -138,14 +127,11 @@
       if (errorSpan) errorSpan.textContent = '';
     }
 
-    // Next button logic for Section 1
+    // Next from Section 1
     document.getElementById('nextBtn1').addEventListener('click', function() {
-      // Section 1 validation
       const section1 = document.getElementById('section1');
       let valid = true;
-
-      // Clear errors
-      ['error-email', 'error-fullname', 'error-document', 'error-use'].forEach(clearError);
+      ['error-email', 'error-fullname', 'error-document'].forEach(clearError);
 
       const email = section1.querySelector('input[name="email"]');
       const fullname = section1.querySelector('input[name="fullname"]');
@@ -176,91 +162,68 @@
 
       if (!valid) return;
 
-      // Routing logic based on document type
       if (documentType.value === "Certificate of Employment") {
-        nextSection(2);
-        lastSection = 1;
+        showSection(2); lastSection = 1;
       } else {
-        nextSection(3);
-        lastSection = 1;
+        showSection(3); lastSection = 1;
       }
     });
 
-    function backToPrevious() {
-      // If lastSection was 1, go back to Section 1, otherwise Section 2
-      const documentType = document.querySelector('input[name="documentType"]:checked');
-      if (documentType && documentType.value === "Certificate of Employment") {
-        nextSection(2);
-      } else {
-        nextSection(1);
-      }
-    }
-
-    function nextSection(n) {
-      // Validate Section 2 if moving from Section 2
-      const currentSection = document.querySelector('.active-section');
+    // Next from Section 2
+    document.getElementById('nextBtn2').addEventListener('click', function() {
       let valid = true;
-      if (currentSection.id === 'section2') {
-        const useType = currentSection.querySelector('input[name="useType"]:checked');
-        clearError('error-use');
-        if (!useType) {
-          showError('error-use', 'Please select the purpose for the document.');
-          valid = false;
-        }
+      clearError('error-use');
+      const useType = document.getElementById('section2').querySelector('input[name="useType"]:checked');
+      if (!useType) {
+        showError('error-use', 'Please select the purpose for the document.');
+        valid = false;
       }
       if (!valid) return;
+      showSection(3); lastSection = 2;
+    });
 
-      // Hide all sections and show the requested one
-      sections.forEach(i => {
-        document.getElementById('section' + i).classList.add('hidden-section');
-        document.getElementById('section' + i).classList.remove('active-section');
-      });
-      document.getElementById('section' + n).classList.remove('hidden-section');
-      document.getElementById('section' + n).classList.add('active-section');
+    // Back from Section 2
+    document.getElementById('backBtn2').addEventListener('click', function() {
+      showSection(1);
+    });
 
-      // Update progress bar
-      const progress = document.getElementById('progressBar');
-      progress.style.width = (n * 33) + '%';
-    }
+    // Back from Section 3
+    document.getElementById('backBtn3').addEventListener('click', function() {
+      // If Certificate of Employment was chosen, go back to Section 2. Else, Section 1.
+      const documentType = document.querySelector('input[name="documentType"]:checked');
+      if (documentType && documentType.value === "Certificate of Employment" && lastSection === 2) {
+        showSection(2);
+      } else {
+        showSection(1);
+      }
+    });
 
-    // AJAX submit handler for Google Apps Script Web App
+    // Submit handler
     document.getElementById('hrForm').addEventListener('submit', function(e) {
       e.preventDefault();
       var form = e.target;
       var data = new FormData(form);
       var feedback = document.getElementById('feedback');
-
-      // For What use: blank if not Certificate of Employment
       const documentType = form.querySelector('input[name="documentType"]:checked');
+      // If not Certificate of Employment, useType should be blank
       if (documentType && documentType.value !== "Certificate of Employment") {
         data.set('useType', '');
       }
 
-      // Show loading message
       feedback.textContent = "Submitting your request... Please wait.";
       feedback.className = "feedback-message feedback-loading";
 
       // Replace with your Google Apps Script Web App URL:
       var url = "https://script.google.com/macros/s/AKfycbxSKmrrph3ZL91nJogQ95Vt5fSNBSlIpmRjKXgFYcZERGm88XK13laDVazO1GydOCaf/exec";
 
-      fetch(url, {
-        method: 'POST',
-        body: data
-      })
+      fetch(url, { method: 'POST', body: data })
       .then(response => response.text())
       .then(text => {
         if (text.toLowerCase().includes("success")) {
           feedback.textContent = "Thank you! Your request has been submitted.";
           feedback.className = "feedback-message feedback-success";
           form.reset();
-          // Reset to section 1
-          sections.forEach(i => {
-            document.getElementById('section' + i).classList.add('hidden-section');
-            document.getElementById('section' + i).classList.remove('active-section');
-          });
-          document.getElementById('section1').classList.remove('hidden-section');
-          document.getElementById('section1').classList.add('active-section');
-          document.getElementById('progressBar').style.width = '33%';
+          showSection(1);
         } else {
           feedback.textContent = "Submission finished, but no confirmation from server. Please check with HR if you do not receive a response.";
           feedback.className = "feedback-message feedback-error";
@@ -271,7 +234,9 @@
         feedback.className = "feedback-message feedback-error";
       });
     });
+
+    // On load, always start with Section 1
+    showSection(1);
   </script>
 </body>
 </html>
-
