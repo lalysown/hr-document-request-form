@@ -26,6 +26,18 @@
     .border-red-500 {
       border-color: #ef4444 !important;
     }
+    .loading-message {
+      color: #2563eb; /* Tailwind blue-600 */
+      font-size: 1em;
+      margin-top: 1em;
+      font-weight: 500;
+    }
+    .failure-message {
+      color: #dc2626; /* Tailwind red-600 */
+      font-size: 1em;
+      margin-top: 1em;
+      font-weight: 500;
+    }
   </style>
 </head>
 
@@ -105,8 +117,18 @@
       </div>
     </form>
 
+    <div id="loadingMessage" class="hidden-section text-center loading-message">
+      Submitting your request... Please wait.
+    </div>
     <div id="submitMessage" class="hidden-section text-center mt-6 text-green-600 text-lg font-semibold">
-      Thank you! Your request has been submitted.
+      Thank you! Your request has been submitted.<br>
+      <span class="text-gray-600 text-base font-normal block mt-2">
+        <b>Note:</b> If you do not receive a confirmation from HR within a business day, please contact HR directly.<br>
+        Occasionally, there may be issues delivering to Google Forms. If so, try again or email HR.
+      </span>
+    </div>
+    <div id="failureMessage" class="hidden-section text-center failure-message">
+      Sorry, we could not submit your request. Please try again or contact HR.
     </div>
   </div>
 
@@ -195,8 +217,11 @@
       const form = e.target;
       const data = new FormData(form);
 
-      // Hide the form and show loading message (optional)
+      // Hide the form and show loading message
       form.style.display = 'none';
+      document.getElementById('loadingMessage').classList.remove('hidden-section');
+      document.getElementById('submitMessage').classList.add('hidden-section');
+      document.getElementById('failureMessage').classList.add('hidden-section');
 
       // Try to submit via AJAX
       fetch(form.action, {
@@ -204,10 +229,12 @@
         body: data,
         mode: 'no-cors' // Google Forms does not support CORS, but this sends the request.
       }).then(() => {
+        document.getElementById('loadingMessage').classList.add('hidden-section');
         document.getElementById('submitMessage').classList.remove('hidden-section');
       }).catch(() => {
-        // If AJAX fails, fallback to normal submission
-        form.submit();
+        document.getElementById('loadingMessage').classList.add('hidden-section');
+        document.getElementById('failureMessage').classList.remove('hidden-section');
+        // Do NOT redirect to Google Forms, just show error
       });
     });
   </script>
