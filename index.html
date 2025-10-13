@@ -17,6 +17,15 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    .error-message {
+      color: #dc2626; /* Tailwind red-600 */
+      font-size: 0.95em;
+      margin-bottom: 0.5em;
+      display: block;
+    }
+    .border-red-500 {
+      border-color: #ef4444 !important;
+    }
   </style>
 </head>
 
@@ -36,10 +45,12 @@
       <!-- SECTION 1 -->
       <div id="section1" class="active-section">
         <label class="block mb-2 font-medium text-gray-700">Email *</label>
-        <input type="email" name="entry.290139712" required class="form-control mb-4 border-gray-300 rounded-lg">
+        <input type="email" name="entry.290139712" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your email">
+        <span class="error-message" id="error-email"></span>
 
         <label class="block mb-2 font-medium text-gray-700">Full Name (Last Name, First Name, Middle Name) *</label>
-        <input type="text" name="entry.226333121" required class="form-control mb-4 border-gray-300 rounded-lg">
+        <input type="text" name="entry.226333121" required class="form-control mb-4 border-gray-300 rounded-lg" placeholder="Enter your full name">
+        <span class="error-message" id="error-fullname"></span>
 
         <label class="block mb-3 font-medium text-gray-700">Type of document you are requesting: *</label>
         <div class="space-y-2">
@@ -48,6 +59,7 @@
           <label class="flex items-center gap-2"><input type="radio" name="entry.250001754" value="Income Tax Return"> Income Tax Return</label>
           <label class="flex items-center gap-2"><input type="radio" name="entry.250001754" value="BIR 2307"> BIR 2307</label>
         </div>
+        <span class="error-message" id="error-document"></span>
 
         <div class="text-end mt-6">
           <button type="button" onclick="nextSection(2)" class="btn btn-primary px-4 py-2">Next</button>
@@ -63,6 +75,7 @@
           <label class="flex items-center gap-2"><input type="radio" name="entry.1313791189" value="Credit Card Application"> Credit Card Application</label>
           <label class="flex items-center gap-2"><input type="radio" name="entry.1313791189" value="Housing Loan Application"> Housing Loan Application</label>
         </div>
+        <span class="error-message" id="error-use"></span>
 
         <div class="flex justify-between mt-6">
           <button type="button" onclick="nextSection(1)" class="btn btn-secondary px-4 py-2">Back</button>
@@ -95,7 +108,70 @@
 
   <script>
     const sections = [1, 2, 3];
+
+    // Helper for showing error messages
+    function showError(fieldId, message) {
+      const errorSpan = document.getElementById(fieldId);
+      if (errorSpan) errorSpan.textContent = message;
+    }
+    function clearError(fieldId) {
+      const errorSpan = document.getElementById(fieldId);
+      if (errorSpan) errorSpan.textContent = '';
+    }
+
     function nextSection(n) {
+      // Validate required fields in the current (visible) section
+      const currentSection = document.querySelector('.active-section');
+      let valid = true;
+
+      // Clear all previous error messages
+      ['error-email', 'error-fullname', 'error-document', 'error-use'].forEach(clearError);
+
+      // Section 1 validation
+      if (currentSection.id === 'section1') {
+        const email = currentSection.querySelector('input[name="entry.290139712"]');
+        const fullname = currentSection.querySelector('input[name="entry.226333121"]');
+        const documentType = currentSection.querySelector('input[name="entry.250001754"]:checked');
+
+        // Email
+        if (!email.value) {
+          showError('error-email', 'Email is required.');
+          email.classList.add('border-red-500');
+          valid = false;
+        } else if (!email.checkValidity()) {
+          showError('error-email', 'Please enter a valid email address.');
+          email.classList.add('border-red-500');
+          valid = false;
+        } else {
+          email.classList.remove('border-red-500');
+        }
+        // Full Name
+        if (!fullname.value) {
+          showError('error-fullname', 'Full Name is required.');
+          fullname.classList.add('border-red-500');
+          valid = false;
+        } else {
+          fullname.classList.remove('border-red-500');
+        }
+        // Document Type
+        if (!documentType) {
+          showError('error-document', 'Please select a document type.');
+          valid = false;
+        }
+      }
+
+      // Section 2 validation
+      if (currentSection.id === 'section2') {
+        const useType = currentSection.querySelector('input[name="entry.1313791189"]:checked');
+        if (!useType) {
+          showError('error-use', 'Please select the purpose for the document.');
+          valid = false;
+        }
+      }
+
+      if (!valid) return; // Do not proceed if invalid
+
+      // Hide all sections and show the requested one
       sections.forEach(i => {
         document.getElementById('section' + i).classList.add('hidden-section');
         document.getElementById('section' + i).classList.remove('active-section');
@@ -103,6 +179,7 @@
       document.getElementById('section' + n).classList.remove('hidden-section');
       document.getElementById('section' + n).classList.add('active-section');
 
+      // Update progress bar
       const progress = document.getElementById('progressBar');
       progress.style.width = (n * 33) + '%';
     }
