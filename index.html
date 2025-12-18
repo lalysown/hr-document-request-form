@@ -37,7 +37,13 @@
 <body class="bg-gray-100 min-h-screen flex justify-center items-center py-10 px-4">
   <div class="bg-white shadow-xl rounded-2xl w-full max-w-2xl p-6 md:p-10">
     <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">HR Document Request</h1>
-    <p class="text-center text-gray-500 mb-6">Please fill out the details below.</p>
+    <p class="text-center text-gray-500 mb-6"> 
+      
+      TPDH-ADM-F17 011521 <br>
+      Request your COE, Service Record, or Good Moral below. <br>
+      TPDH processing: 5–7 working days.
+      
+    </p>
     <div class="progress mb-6">
       <div id="progressBar" class="progress-bar bg-indigo-500" style="width: 33%;"></div>
     </div>
@@ -54,8 +60,9 @@
         <label class="block mb-3 font-medium text-gray-700">Type of document you are requesting: *</label>
         <div class="space-y-2 mb-4" id="documentTypeGroup">
           <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Certificate of Employment" required> Certificate of Employment</label>
-          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Good Moral Certificate"> Good Moral Certificate</label>
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Good Moral Certificate"> Good Moral Certificate </label>
           <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Income Tax Return"> Income Tax Return</label>
+          <label class="flex items-center gap-2"><input type="radio" name="documentType" value="Income Tax Return"> Scholarship </label>
           <label class="flex items-center gap-2"><input type="radio" name="documentType" value="BIR 2307"> BIR 2307</label>
         </div>
         <span class="error-message" id="error-document"></span>
@@ -240,3 +247,4 @@
   </script>
 </body>
 </html>
+
